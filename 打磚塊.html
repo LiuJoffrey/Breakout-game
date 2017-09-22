@@ -1,0 +1,201 @@
+<html>
+<head>
+<title>Bricks</title>
+
+<script>
+
+N=(navigator.appName.indexOf('Netscape')!=-1&&parseInt(navigator.appVersion)<5);
+S=(navigator.appName.indexOf('Netscape')!=-1&&parseInt(navigator.appVersion)>4.9);
+M=(navigator.appName.indexOf('Microsoft')!=-1);
+
+var Styl,ID,zX,zY,vis,vs,zz;
+
+Vis=new Array();
+Vis[0]="hidden";
+Vis[1]="visible";
+
+function GetDiv(divId,divY,divX,divW,divH,bCol,visb,bor){
+
+bkCol=(bCol!="")?(";background-color:"+bCol):""
+
+Styl = "<div"
+Styl+=" ID="+divId
+if (bor!=1) {
+	Styl+=" style='position:absolute;border-width:3;border-style:outset;top:"+divY+";left:"+divX+";width:"+divW+";height:"+divH+bkCol
+} else{
+	Styl+=" style='position:absolute;top:"+divY+";left:"+divX+";width:"+divW+";height:"+divH+bkCol
+}
+Styl+=";visibility:"+Vis[visb]+";"
+Styl+="'>"
+
+document.writeln(Styl)
+}
+
+function EndDiv(){
+document.writeln("</div>")
+}
+
+function PutIt(ID,zX,zY){
+document.getElementById(ID).style.left=zX
+document.getElementById(ID).style.top=zY
+}
+
+function Yof(ID,tp){
+return parseInt(document.getElementById(ID).style.top)
+}
+
+function Xof(ID){
+return parseInt(document.getElementById(ID).style.left)
+}
+
+
+
+function ShowHide(ID,vs){
+document.getElementById(ID).style.visibility=Vis[vs]
+}
+
+function VisOf(ID){
+Vizz=(document.getElementById(ID).style.visibility=="visible")?1:0
+return Vizz
+}
+
+function Zind(ID,zz){
+document.getElementById(ID).style.zIndex=zz
+}
+
+function lyrWrt(IdName,Str) {
+document.getElementById(IdName).innerHTML=Str
+}
+
+
+
+</script>
+
+
+<body>
+
+	
+<script>
+
+
+var Level=100;
+var Lose=0;
+var Score=0;
+var CurY=250;
+var DX=10,DY=-10;
+
+var Colors=new Array("red","blue","yellow","white","cyan","gray");
+var xsize=8,ysize=3;
+var drmed;
+
+var Hits=new Array();
+for(var i = 0; i < xsize; i++)
+	Hits[i] = new Array(xsize);
+
+
+function Bounce(){
+
+if (Xof("Ball")<0||Xof("Ball")>60*xsize-30) DX=-DX;
+
+
+if(Math.abs(Xof("Ball")+10-CurY)*2 < Level && Yof("Ball")>=380){
+	DY=-(Math.abs(DY));
+	DX= (Xof("Ball")+10-CurY)/2;
+}
+
+if(Yof("Ball")>400){
+Lose++
+clearInterval(GameOn);
+}
+
+
+if(Math.floor(Xof("Ball")/60)<xsize && Math.floor(Yof("Ball")/40)<ysize){
+	Tx=Math.floor(Xof("Ball")/60);
+	if(Tx<0)Tx=0;
+	if(Tx>(xsize-1))Tx=(xsize-1);
+	Ty=Math.floor(Yof("Ball")/40);
+	if(VisOf("B"+Tx+Ty)==1){
+		DY=-DY;
+		Hits[Tx][Ty]++;
+		Score++;
+		
+		if(Hits[Tx][Ty]==ysize-Ty){
+			ShowHide("B"+Tx+Ty,0);
+			
+			if(Tx==0&&Ty==0){
+				ShowHide("med",1);
+			    drmed = setInterval("dr()",50);
+
+			}
+			
+			Score++;
+			lyrWrt("Score1",Score);
+		}
+	}
+}
+
+if(Yof("Ball")<5){
+	DY=Math.abs(DY);
+}
+
+PutIt("Ball",Xof("Ball")+DX,Yof("Ball")+DY);
+
+}
+
+function dr(){
+	var mdy=10;
+	if (Yof("med")<400) {PutIt("med",10,Yof("med")+mdy); }
+	else{
+	clearInterval(drmed);
+	}
+}
+
+function Init(){
+
+GetDiv("Back",0,0,473,450,Colors[1],1,2);
+
+for(x=0;x<xsize;x++){
+	for(y=0;y<ysize;y++){
+		Hits[x][y]=0;
+		GetDiv("B"+x+y,y*40,x*60,50,30,Colors[2+y],1,0);
+		EndDiv();
+	}
+}
+GetDiv("Ball",330,250,20,20,'',1,1);
+document.write("<img src=b3.gif height=20 width=20>");
+EndDiv();
+GetDiv("You",400,250,100,20,Colors[5],1,2);
+EndDiv();
+
+GetDiv("Score1",50,500,100,50,Colors[4],1,2);
+EndDiv();
+
+GetDiv("med",100,10,20,20,Colors[2],0,2);
+EndDiv();
+			
+PutIt("Ball",Xof("You")+(Level/2)-5,Yof("You")-20);
+
+EndDiv();
+
+
+}
+
+function newPos(e){
+
+if (M) CurY=event.clientX;
+if (N||S) CurY=e.clientX;
+
+if(CurY<50) CurY=50;
+if(CurY>420) CurY=420;
+PutIt("You",CurY-(Level/2),400);
+
+}
+
+
+Init();
+document.onmousemove=newPos; 
+var GameOn = setInterval("Bounce()",50);
+
+</script>
+</body>
+</html>
